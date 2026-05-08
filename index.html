@@ -3,81 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Médicos de Ecografía - By Matias Sanchez</title>
+    <title>Médicos de Ecografía - Pro System Cloud</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
-            --color-anillo: #7f8c8d;
-            --color-papel: #ffffff;
-            --color-primario: #3498db;
-            --color-secundario: #2ecc71;
-            --color-peligro: #e74c3c;
-            --color-alerta: #f1c40f;
+            --color-anillo: #7f8c8d; --color-papel: #ffffff; --color-primario: #3498db;
+            --color-secundario: #2ecc71; --color-peligro: #e74c3c; --color-alerta: #f1c40f;
             --firma-color: #bdc3c7;
         }
-
-        body {
-            background-color: #d1d8e0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .cuaderno {
-            width: 450px;
-            height: 680px;
-            background: var(--color-papel);
-            border-radius: 5px 20px 20px 5px;
-            box-shadow: 15px 15px 30px rgba(0,0,0,0.2);
-            position: relative;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            border-left: 2px solid #ddd;
-            box-sizing: border-box;
-        }
-
-        .anillos {
-            position: absolute; left: -15px; top: 20px; bottom: 20px; width: 30px;
-            background-image: linear-gradient(to bottom, transparent 10px, var(--color-anillo) 10px, #34495e 15px, var(--color-anillo) 20px, transparent 20px);
-            background-size: 100% 35px; z-index: 10;
-        }
-
-        .firma {
-            position: absolute; bottom: 15px; right: 20px; font-size: 0.75rem; color: var(--firma-color); font-style: italic;
-        }
-
+        body { background-color: #d1d8e0; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'Segoe UI', sans-serif; }
+        .cuaderno { width: 450px; height: 680px; background: var(--color-papel); border-radius: 5px 20px 20px 5px; box-shadow: 15px 15px 30px rgba(0,0,0,0.2); position: relative; padding: 40px; display: flex; flex-direction: column; border-left: 2px solid #ddd; box-sizing: border-box; }
+        .anillos { position: absolute; left: -15px; top: 20px; bottom: 20px; width: 30px; background-image: linear-gradient(to bottom, transparent 10px, var(--color-anillo) 10px, #34495e 15px, var(--color-anillo) 20px, transparent 20px); background-size: 100% 35px; z-index: 10; }
+        .firma { position: absolute; bottom: 15px; right: 20px; font-size: 0.75rem; color: var(--firma-color); font-style: italic; }
         .seccion { display: none; flex-direction: column; align-items: center; text-align: center; height: 100%; }
         .activo { display: flex; }
-
         input, textarea { width: 100%; padding: 10px; margin: 6px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
-        
         button { padding: 10px 15px; margin: 5px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         button:hover { opacity: 0.8; transform: scale(1.02); }
-
         .btn-principal { background: var(--color-primario); color: white; width: 100%; }
         .btn-secundario { background: var(--color-secundario); color: white; width: 100%; }
         .btn-pdf { background: #34495e; color: white; margin-top: 10px; width: 100%; }
         .btn-nav { background: #95a5a6; color: white; flex: 1; }
-
         .foto-medico { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 4px solid #ecf0f1; margin-bottom: 10px; background: #eee; }
-        
         .estudios-scroll { text-align: left; background: #f9f9f9; padding: 15px; border-radius: 10px; width: 100%; max-height: 180px; overflow-y: auto; border: 1px solid #eee; box-sizing: border-box; }
-        
         .estudios-pdf-full { max-height: none !important; overflow: visible !important; background: white !important; border: none !important; }
-
         .nav-inferior { margin-top: auto; display: flex; width: 100%; gap: 5px; }
-
-        /* Icono de candado para indicar zona protegida */
-        .lock-icon { font-size: 0.7rem; vertical-align: middle; margin-right: 5px; opacity: 0.7; }
+        .loading-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); display:flex; justify-content:center; align-items:center; z-index:100; border-radius: 20px; }
     </style>
 </head>
 <body>
 
 <div class="cuaderno">
+    <div id="loader" class="loading-overlay">Cargando Nube...</div>
     <div class="anillos"></div>
     <div class="firma">by Matias Sanchez</div>
 
@@ -86,32 +43,24 @@
         <img src="https://cdn-icons-png.flaticon.com/512/3774/3774299.png" width="80" style="margin-bottom: 20px;">
         <input type="text" id="inputBusqueda" placeholder="Buscar por apellido...">
         <button class="btn-principal" onclick="buscarMedico()">🔍 Buscar Médico</button>
-        <button class="btn-secundario" onclick="verificarAcceso(mostrarFormulario)">
-            <span class="lock-icon">🔒</span>➕ Nuevo Registro
-        </button>
-        <button style="background: #e67e22; color: white; width: 100%;" onclick="abrirLibro(0)">📖 Abrir Libro Completo</button>
+        <button class="btn-secundario" onclick="verificarAcceso(mostrarFormulario)">🔒 ➕ Nuevo Registro</button>
+        <button style="background: #e67e22; color: white; width: 100%;" onclick="abrirLibro(0)">📖 Abrir Libro</button>
     </div>
 
     <div id="pantalla-medico" class="seccion">
-        <div id="area-pdf" style="width: 100%; padding: 10px; background: white; border-radius: 10px;">
+        <div id="area-pdf" style="width: 100%; padding: 10px; background: white;">
             <img id="medicoFoto" src="" class="foto-medico">
             <h2 id="medicoNombre" style="margin: 5px 0;"></h2>
             <p id="medicoEspec" style="color: var(--color-primario); font-weight: bold;"></p>
             <div id="scroll-estudios" class="estudios-scroll">
                 <strong>Estudios habilitados:</strong>
-                <ul id="medicoEstudios" style="padding-left: 20px; margin-top: 10px;"></ul>
+                <ul id="medicoEstudios" style="padding-left: 20px;"></ul>
             </div>
         </div>
-        
-        <button class="btn-pdf" onclick="generarPDF()">📄 Exportar Ficha PDF</button>
-
+        <button class="btn-pdf" onclick="generarPDF()">📄 Exportar PDF</button>
         <div style="margin-top: 10px; display: flex; gap: 5px; width: 100%;">
-            <button style="background: var(--color-alerta); flex: 1;" onclick="verificarAcceso(prepararEdicion)">
-                <span class="lock-icon">🔒</span>Editar
-            </button>
-            <button style="background: var(--color-peligro); color: white; flex: 1;" onclick="verificarAcceso(eliminarMedico)">
-                <span class="lock-icon">🔒</span>Borrar
-            </button>
+            <button style="background: var(--color-alerta); flex: 1;" onclick="verificarAcceso(prepararEdicion)">✏️ Editar</button>
+            <button style="background: var(--color-peligro); color: white; flex: 1;" onclick="verificarAcceso(eliminarMedico)">🗑️ Borrar</button>
         </div>
         <div class="nav-inferior">
             <button class="btn-nav" onclick="cambiarPagina(-1)">Ant.</button>
@@ -121,77 +70,125 @@
     </div>
 
     <div id="pantalla-formulario" class="seccion">
-        <h2 id="titulo-form">Registro</h2>
+        <h2 id="titulo-form">Registro Cloud</h2>
         <img id="f-preview" src="" class="foto-medico" style="width:60px; height:60px; display:none;">
-        <label style="cursor:pointer; color:var(--color-primario); font-size: 0.8rem; margin-bottom: 10px; display: block;">
-            📷 Seleccionar Foto <input type="file" id="f-foto" accept="image/*" style="display:none;" onchange="procesarFoto(this)">
+        <label style="cursor:pointer; color:var(--color-primario); font-size: 0.8rem;">
+            📷 Foto <input type="file" id="f-foto" accept="image/*" style="display:none;" onchange="procesarFoto(this)">
         </label>
         <input type="text" id="f-nombre" placeholder="Nombre">
         <input type="text" id="f-apellido" placeholder="Apellido">
         <input type="text" id="f-espec" placeholder="Especialidad">
-        <textarea id="f-estudios" rows="4" placeholder="Estudios (separados por coma)"></textarea>
-        <button class="btn-secundario" onclick="guardarMedico()" style="margin-top: 10px;">Guardar Cambios</button>
-        <button class="btn-nav" onclick="irAlInicio()" style="width: 100%;">Cancelar</button>
+        <textarea id="f-estudios" rows="3" placeholder="Estudios (separados por coma)"></textarea>
+        <button class="btn-secundario" id="btnGuardar" onclick="guardarMedico()">Guardar en Nube</button>
+        <button class="btn-nav" onclick="irAlInicio()">Cancelar</button>
     </div>
 </div>
 
-<script>
-    // CONFIGURACIÓN DE SEGURIDAD
-    const CLAVE_MAESTRA = "6130"; 
-    let tieneAcceso = false; // Sesión temporal
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } 
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    let medicos = JSON.parse(localStorage.getItem('libretaMedica')) || [];
+    const firebaseConfig = {
+        apiKey: "AIzaSyA0pT3Id6ywwjSUIr0KzhZ3Cndyi5DEMjY",
+        authDomain: "libro-de-medicos-maty.firebaseapp.com",
+        projectId: "libro-de-medicos-maty",
+        storageBucket: "libro-de-medicos-maty.firebasestorage.app",
+        messagingSenderId: "1077469431670",
+        appId: "1:1077469431670:web:efa1299108d010c2185c57"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const medicosRef = collection(db, "medicos");
+
+    let medicos = [];
     let indiceActual = 0;
-    let editandoIndice = null;
+    let editandoId = null;
     let imagenBase64 = "";
+    let tieneAcceso = false;
+    const CLAVE = "1234";
 
-    // FUNCIÓN DE VERIFICACIÓN
-    function verificarAcceso(callback) {
-        if (tieneAcceso) {
-            callback(); // Si ya puso la clave antes, entra directo
-        } else {
-            const pass = prompt("Acceso restringido. Ingrese la contraseña para modificar datos:");
-            if (pass === CLAVE_MAESTRA) {
-                tieneAcceso = true;
-                callback();
-            } else if (pass !== null) {
-                alert("Contraseña incorrecta.");
-            }
-        }
+    // CARGAR DATOS AL INICIAR
+    async function cargarMedicos() {
+        document.getElementById('loader').style.display = "flex";
+        const q = query(medicosRef, orderBy("apellido", "asc"));
+        const querySnapshot = await getDocs(q);
+        medicos = [];
+        querySnapshot.forEach((doc) => {
+            medicos.push({ id: doc.id, ...doc.data() });
+        });
+        document.getElementById('loader').style.display = "none";
     }
+    cargarMedicos();
+
+    window.verificarAcceso = (callback) => {
+        if (tieneAcceso) return callback();
+        const p = prompt("Contraseña de edición:");
+        if (p === CLAVE) { tieneAcceso = true; callback(); }
+        else if (p !== null) alert("Incorrecta");
+    };
+
+    window.irAlInicio = () => { editandoId = null; cambiarSeccion('pantalla-inicio'); };
 
     function cambiarSeccion(id) {
         document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activo'));
         document.getElementById(id).classList.add('activo');
     }
 
-    function irAlInicio() {
-        editandoIndice = null;
-        cambiarSeccion('pantalla-inicio');
-    }
+    window.mostrarFormulario = () => {
+        document.getElementById('f-nombre').value = "";
+        document.getElementById('f-apellido').value = "";
+        document.getElementById('f-espec').value = "";
+        document.getElementById('f-estudios').value = "";
+        document.getElementById('f-preview').style.display = "none";
+        imagenBase64 = ""; editandoId = null;
+        cambiarSeccion('pantalla-formulario');
+    };
 
-    function procesarFoto(input) {
+    window.procesarFoto = (input) => {
         if (input.files && input.files[0]) {
             let reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = (e) => {
                 let img = new Image();
                 img.src = e.target.result;
-                img.onload = function() {
+                img.onload = () => {
                     let canvas = document.createElement('canvas');
-                    let ctx = canvas.getContext('2d');
                     canvas.width = 300; canvas.height = 300;
-                    ctx.drawImage(img, 0, 0, 300, 300);
-                    imagenBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    canvas.getContext('2d').drawImage(img, 0, 0, 300, 300);
+                    imagenBase64 = canvas.toDataURL('image/jpeg', 0.6);
                     document.getElementById('f-preview').src = imagenBase64;
                     document.getElementById('f-preview').style.display = "block";
                 };
             };
             reader.readAsDataURL(input.files[0]);
         }
-    }
+    };
 
-    function abrirLibro(idx) {
-        if (medicos.length === 0) return alert("El libro está vacío actualmente.");
+    window.guardarMedico = async () => {
+        const btn = document.getElementById('btnGuardar');
+        const m = {
+            nombre: document.getElementById('f-nombre').value,
+            apellido: document.getElementById('f-apellido').value,
+            especialidad: document.getElementById('f-espec').value,
+            estudios: document.getElementById('f-estudios').value.split(',').map(s => s.trim()),
+            foto: imagenBase64
+        };
+        if(!m.nombre || !m.apellido) return alert("Faltan datos");
+
+        btn.disabled = true; btn.innerText = "Guardando...";
+        if (editandoId) {
+            await updateDoc(doc(db, "medicos", editandoId), m);
+        } else {
+            await addDoc(medicosRef, m);
+        }
+        await cargarMedicos();
+        btn.disabled = false; btn.innerText = "Guardar en Nube";
+        irAlInicio();
+    };
+
+    window.abrirLibro = (idx) => {
+        if (medicos.length === 0) return alert("No hay médicos cargados.");
         indiceActual = idx;
         const m = medicos[idx];
         document.getElementById('medicoFoto').src = m.foto || 'https://via.placeholder.com/150';
@@ -199,27 +196,16 @@
         document.getElementById('medicoEspec').innerText = m.especialidad;
         document.getElementById('medicoEstudios').innerHTML = m.estudios.map(e => `<li>${e}</li>`).join('');
         cambiarSeccion('pantalla-medico');
-    }
+    };
 
-    function cambiarPagina(dir) {
+    window.cambiarPagina = (dir) => {
         let n = indiceActual + dir;
         if (n >= 0 && n < medicos.length) abrirLibro(n);
-    }
+    };
 
-    function mostrarFormulario() {
-        document.getElementById('f-nombre').value = "";
-        document.getElementById('f-apellido').value = "";
-        document.getElementById('f-espec').value = "";
-        document.getElementById('f-estudios').value = "";
-        document.getElementById('f-preview').style.display = "none";
-        imagenBase64 = "";
-        editandoIndice = null;
-        cambiarSeccion('pantalla-formulario');
-    }
-
-    function prepararEdicion() {
+    window.prepararEdicion = () => {
         const m = medicos[indiceActual];
-        editandoIndice = indiceActual;
+        editandoId = m.id;
         document.getElementById('f-nombre').value = m.nombre;
         document.getElementById('f-apellido').value = m.apellido;
         document.getElementById('f-espec').value = m.especialidad;
@@ -228,59 +214,29 @@
         document.getElementById('f-preview').src = m.foto || "";
         document.getElementById('f-preview').style.display = m.foto ? "block" : "none";
         cambiarSeccion('pantalla-formulario');
-    }
+    };
 
-    function guardarMedico() {
-        const m = {
-            nombre: document.getElementById('f-nombre').value,
-            apellido: document.getElementById('f-apellido').value,
-            especialidad: document.getElementById('f-espec').value,
-            estudios: document.getElementById('f-estudios').value.split(',').map(s => s.trim()).filter(s => s !== ""),
-            foto: imagenBase64
-        };
-        if(!m.nombre || !m.apellido) return alert("Nombre y Apellido son obligatorios");
-        
-        if (editandoIndice !== null) medicos[editandoIndice] = m;
-        else medicos.push(m);
-        
-        medicos.sort((a, b) => a.apellido.localeCompare(b.apellido));
-        localStorage.setItem('libretaMedica', JSON.stringify(medicos));
-        alert("¡Datos guardados con éxito!");
-        irAlInicio();
-    }
-
-    function eliminarMedico() {
-        if (confirm("¿Estás seguro de que quieres borrar este registro?")) {
-            medicos.splice(indiceActual, 1);
-            localStorage.setItem('libretaMedica', JSON.stringify(medicos));
+    window.eliminarMedico = async () => {
+        if (confirm("¿Borrar médico de la nube?")) {
+            await deleteDoc(doc(db, "medicos", medicos[indiceActual].id));
+            await cargarMedicos();
             irAlInicio();
         }
-    }
+    };
 
-    function buscarMedico() {
+    window.buscarMedico = () => {
         const b = document.getElementById('inputBusqueda').value.toLowerCase().trim();
-        if(!b) return;
         const i = medicos.findIndex(m => m.apellido.toLowerCase().includes(b));
-        if (i !== -1) abrirLibro(i);
-        else alert("No se encontró ningún médico con ese apellido.");
-    }
+        if (i !== -1) abrirLibro(i); else alert("No encontrado");
+    };
 
-    function generarPDF() {
-        const contenedorEstudios = document.getElementById('scroll-estudios');
-        const m = medicos[indiceActual];
-        contenedorEstudios.classList.add('estudios-pdf-full');
+    window.generarPDF = () => {
+        const contenedor = document.getElementById('scroll-estudios');
+        contenedor.classList.add('estudios-pdf-full');
         const elemento = document.getElementById('area-pdf');
-        const opciones = {
-            margin: 0.5,
-            filename: `Ficha_${m.apellido}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-        html2pdf().set(opciones).from(elemento).save().then(() => {
-            contenedorEstudios.classList.remove('estudios-pdf-full');
-        });
-    }
+        html2pdf().set({ margin: 0.5, filename: 'FichaMedico.pdf', html2canvas: { scale: 2 } })
+        .from(elemento).save().then(() => contenedor.classList.remove('estudios-pdf-full'));
+    };
 </script>
 </body>
 </html>
